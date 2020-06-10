@@ -5,6 +5,7 @@ pygame.font.init()
 
 font = pygame.font.SysFont(pygame.font.get_default_font(), 50)
 
+# 9 rows/cols of 50 pixels
 DIS_WIDTH = 9 * 50
 DIS_HEIGHT = 9 * 50
 dis = pygame.display.set_mode((DIS_WIDTH, DIS_HEIGHT))
@@ -22,6 +23,8 @@ board = [
     [1, 2, 0, 0, 0, 7, 4, 0, 0],
     [0, 4, 9, 2, 0, 6, 0, 0, 7]
 ]
+
+ORIGINAL_BOARD = board
 
 
 def draw_board():
@@ -41,7 +44,7 @@ def draw_board():
 
 
 def place_num(x, y):
-    if event.key == pygame.K_0:
+    if event.key == pygame.K_BACKSPACE:
         board[int(x / 50)][int(y / 50)] = 0
     if event.key == pygame.K_1:
         board[int(x / 50)][int(y / 50)] = 1
@@ -61,7 +64,53 @@ def place_num(x, y):
         board[int(x / 50)][int(y / 50)] = 8
     if event.key == pygame.K_9:
         board[int(x / 50)][int(y / 50)] = 9
+    if event.key == pygame.K_SPACE:
+        solve()
     draw_board()
+    pygame.display.update()
+
+
+def find_empty():
+    for row in range(9):
+        for col in range(9):
+            if board[row][col] == 0:
+                return row, col
+    return None
+
+
+def is_valid(row, col, num):
+    for i in range(9):
+        # check row
+        if board[row][i] == num:
+            return False
+
+        # check col
+        if board[i][col] == num:
+            return False
+
+    # check 3x3 square
+    row_start = (row // 3) * 3
+    col_start = (col // 3) * 3
+    for i in range(row_start, row_start + 3):
+        for j in range(col_start, col_start + 3):
+            if board[i][j] == num:
+                return False
+    return True
+
+
+def solve():
+    if find_empty() is None:
+        return True
+    row, col = find_empty()
+    for i in range(1, 10):
+        if is_valid(row, col, i):
+            board[row][col] = i
+            draw_board()
+            pygame.event.pump()
+            if solve():
+                return True
+            board[row][col] = 0
+    return False
 
 
 class Box:
@@ -87,13 +136,9 @@ class Box:
             return True
         return False
 
-    def is_empty(self, row, col):
-        if board[col][row] == 0:
-            return True
-        return False
-
 
 draw_board()
+# solve()
 running = True
 Box = Box()
 while running:
