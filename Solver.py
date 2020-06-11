@@ -24,8 +24,6 @@ board = [
     [0, 4, 9, 2, 0, 6, 0, 0, 7]
 ]
 
-ORIGINAL_BOARD = board
-
 
 def draw_board():
     for i in range(9):
@@ -130,15 +128,10 @@ class Box:
         while not self.box_Y % 50 == 0:
             self.box_Y -= 1
         self.box = (self.box_X, self.box_Y, 50, 50)
-
-    def is_selected(self, x, y):
-        if x == self.box_X and y == self.box_Y:
-            return True
-        return False
+        pygame.draw.rect(dis, (30, 180, 40), (self.box_X, self.box_Y, 50, 50), 3)
 
 
 draw_board()
-# solve()
 running = True
 Box = Box()
 while running:
@@ -149,9 +142,8 @@ while running:
             Box.select_box()
         if event.type == pygame.KEYDOWN:
             place_num(Box.box_Y, Box.box_X)
-
     pygame.draw.rect(dis, (30, 180, 40), Box.box, 3)
-
+    Box.select_box()
     pygame.display.update()
 pygame.quit()
 quit()
